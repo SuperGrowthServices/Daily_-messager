@@ -1,9 +1,17 @@
-import React, { useState } from 'react'
-import Login from '../pages/Login' // Adjust path as needed
+import React, { useState, useEffect } from 'react'
+import Login from '../pages/Login'
 import Sidebar from './Sidebar'
 
 const ProtectedRoute = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  // Initialize state from sessionStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return sessionStorage.getItem('isLoggedIn') === 'true'
+  })
+
+  // Update sessionStorage whenever login state changes
+  useEffect(() => {
+    sessionStorage.setItem('isLoggedIn', isLoggedIn.toString())
+  }, [isLoggedIn])
 
   const handleLogin = () => {
     setIsLoggedIn(true)
@@ -11,14 +19,13 @@ const ProtectedRoute = ({ children }) => {
 
   const handleLogout = () => {
     setIsLoggedIn(false)
+    sessionStorage.removeItem('isLoggedIn') // Clean up on logout
   }
 
-  // If not logged in, show only the login page
   if (!isLoggedIn) {
     return <Login onLogin={handleLogin} />
   }
 
-  // If logged in, show the protected content with sidebar
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar onLogout={handleLogout} />
